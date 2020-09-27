@@ -4,9 +4,10 @@
     "declaration": true,
     "declarationMap": true,
     "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
     "experimentalDecorators": true,
     "module": "commonjs",
-    "moduleResolution": "node",
+    "moduleResolution": "Node",
     "noImplicitAny": false,
     "noEmitOnError": true,
     "forceConsistentCasingInFileNames": true,
@@ -18,10 +19,11 @@
     "pretty": true,
     "strict": true,
     "target": "es6",
-    "lib": [
-      "ES2020"
-    ],
-    "baseUrl": "."
+    "lib": ["ES2020"],
+    "baseUrl": "./",
+    "paths": {
+      "@marblejs/*": ["./packages/*"]
+    }
   },
   "include": [
     "./packages/**/*.ts",

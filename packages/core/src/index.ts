@@ -1,7 +1,12 @@
 // http
 export { EffectFactory } from './http/effects/http.effects.factory';
 export { defaultError$ } from './http/error/http.error.effect';
-export { HttpError, HttpRequestError, isHttpError, isHttpRequestError } from './http/error/http.error.model';
+export {
+  HttpError,
+  HttpRequestError,
+  isHttpError,
+  isHttpRequestError,
+} from './http/error/http.error.model';
 export { createServer } from './http/server/http.server';
 export { combineRoutes } from './http/router/http.router.combiner';
 export { r } from './http/router/http.router.ixbuilder';
@@ -20,7 +25,12 @@ export * from './http/server/internal-dependencies/httpRequestBus.reader';
 
 // core - error
 export { coreErrorFactory, CoreErrorOptions } from './error/error.factory';
-export { CoreError, EventError, isCoreError, isEventError } from './error/error.model';
+export {
+  CoreError,
+  EventError,
+  isCoreError,
+  isEventError,
+} from './error/error.model';
 
 // core - effects
 export { combineEffects, combineMiddlewares } from './effects/effects.combiner';

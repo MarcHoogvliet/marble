@@ -1,6 +1,9 @@
 import { TimeoutError } from 'rxjs';
 import { Marbles } from '@marblejs/core/dist/+internal/testing';
-import { WebSocketStatus, WebSocketConnectionLiveness } from '../../websocket.interface';
+import {
+  WebSocketStatus,
+  WebSocketConnectionLiveness,
+} from '../../websocket.interface';
 import { WebSocketConnectionError } from '../../error/websocket.error.model';
 import {
   handleClientValidationError,
@@ -9,7 +12,10 @@ import {
   HEART_BEAT_INTERVAL,
   HEART_BEAT_TERMINATE_INTERVAL,
 } from '../websocket.server.helper';
-import { createWebSocketServerMock, createWebSocketClientMock } from '../../+internal';
+import {
+  createWebSocketServerMock,
+  createWebSocketClientMock,
+} from '../../+internal';
 
 describe('#handleServerBrokenConnections', () => {
   test('terminates dead connections', () => {
@@ -42,11 +48,15 @@ describe('#handleServerBrokenConnections', () => {
     // then
     scheduler.run(({ expectObservable, flush }) => {
       expectObservable(brokenConnection$).toBe(
-        `${HEART_BEAT_INTERVAL}ms (ab) ${HEART_BEAT_INTERVAL - 4}ms (cd) 96ms |`,
+        `${HEART_BEAT_INTERVAL}ms (ab) ${
+          HEART_BEAT_INTERVAL - 4
+        }ms (cd) 96ms |`,
         {
-          a: WebSocketConnectionLiveness.ALIVE, b: WebSocketConnectionLiveness.ALIVE,
-          c: WebSocketConnectionLiveness.ALIVE, d: WebSocketConnectionLiveness.DEAD,
-        },
+          a: WebSocketConnectionLiveness.ALIVE,
+          b: WebSocketConnectionLiveness.ALIVE,
+          c: WebSocketConnectionLiveness.ALIVE,
+          d: WebSocketConnectionLiveness.DEAD,
+        }
       );
       flush();
       expect(server.clients[0].terminate).not.toHaveBeenCalled();
@@ -64,19 +74,20 @@ describe('#handleClientBrokenConnection', () => {
 
     // when
     const brokenConnection$ = handleClientBrokenConnection(client, scheduler);
-    scheduler.schedule(() => client.emit('open'),    100);
-    scheduler.schedule(() => client.isAlive = false, 150);
-    scheduler.schedule(() => client.emit('ping'),    200);
-    scheduler.schedule(() => client.isAlive = false, 250);
-    scheduler.schedule(() => client.emit('pong'),    300);
-    scheduler.schedule(() => client.emit('close'),   400);
+    scheduler.schedule(() => client.emit('open'), 100);
+    scheduler.schedule(() => (client.isAlive = false), 150);
+    scheduler.schedule(() => client.emit('ping'), 200);
+    scheduler.schedule(() => (client.isAlive = false), 250);
+    scheduler.schedule(() => client.emit('pong'), 300);
+    scheduler.schedule(() => client.emit('close'), 400);
 
     // then
     scheduler.run(({ expectObservable, flush }) => {
-      expectObservable(brokenConnection$).toBe(
-        '100ms a 99ms b 99ms c 99ms |',
-        { a: isAlive, b: isAlive, c: isAlive },
-      );
+      expectObservable(brokenConnection$).toBe('100ms a 99ms b 99ms c 99ms |', {
+        a: isAlive,
+        b: isAlive,
+        c: isAlive,
+      });
       flush();
       expect(client.terminate).not.toHaveBeenCalled();
     });
@@ -98,7 +109,7 @@ describe('#handleClientBrokenConnection', () => {
       expectObservable(brokenConnection$).toBe(
         `100ms a ${HEART_BEAT_TERMINATE_INTERVAL - 1}ms #`,
         { a: isAlive },
-        timeoutError,
+        timeoutError
       );
       flush();
       expect(client.terminate).toHaveBeenCalled();
@@ -109,7 +120,10 @@ describe('#handleClientBrokenConnection', () => {
 describe('#handleClientValidationError', () => {
   test('closes connection with defined closing code', () => {
     // given
-    const error = new WebSocketConnectionError('test', WebSocketStatus.NORMAL_CLOSURE);
+    const error = new WebSocketConnectionError(
+      'test',
+      WebSocketStatus.NORMAL_CLOSURE
+    );
     const client = createWebSocketClientMock();
 
     // when
@@ -132,6 +146,9 @@ describe('#handleClientValidationError', () => {
 
     // then
     expect(client.isAlive).toEqual(false);
-    expect(client.close).toHaveBeenCalledWith(WebSocketStatus.INTERNAL_ERROR, error.message);
+    expect(client.close).toHaveBeenCalledWith(
+      WebSocketStatus.INTERNAL_ERROR,
+      error.message
+    );
   });
 });

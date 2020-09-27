@@ -1,5 +1,5 @@
-import { Marbles } from '@marblejs/core/dist/+internal/testing';
 import { of } from 'rxjs';
+import { Marbles } from '@marblejs/core/dist/+internal/testing';
 import { WsEffect } from '../../effects/websocket.effects.interface';
 import { broadcast } from './websocket.broadcast.operator';
 
@@ -10,19 +10,24 @@ describe('#broadcast operator', () => {
   test('sends broadcast response', () => {
     // given
     const incomingEvent = { type: 'TEST_EVENT' };
-    const outgoingEvent = { type: 'TEST_EVENT_RESPONSE', payload: 'test_payload' };
+    const outgoingEvent = {
+      type: 'TEST_EVENT_RESPONSE',
+      payload: 'test_payload',
+    };
 
     // when
     const effect$: WsEffect = (event$, { client }) =>
-      event$.pipe(
-        broadcast(client, () => outgoingEvent),
-      );
+      event$.pipe(broadcast(client, () => outgoingEvent));
 
     // then
-    Marbles.assertEffect(effect$, [
-      ['-a--', { a: incomingEvent }],
-      ['-b--', { b: outgoingEvent }],
-    ], { ctx });
+    Marbles.assertEffect(
+      effect$,
+      [
+        ['-a--', { a: incomingEvent }],
+        ['-b--', { b: outgoingEvent }],
+      ],
+      { ctx }
+    );
 
     expect(client.sendBroadcastResponse).toHaveBeenCalledWith(outgoingEvent);
   });

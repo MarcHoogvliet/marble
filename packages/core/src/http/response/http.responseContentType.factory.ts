@@ -1,4 +1,5 @@
-import * as fileType from 'file-type';
+import core = require('file-type/core');
+import { fromFile as fileType } from 'file-type';
 import * as mime from 'mime';
 import { HttpStatus } from '../http.interface';
 import { ContentType } from '../../+internal/http';
@@ -6,9 +7,10 @@ import { ContentType } from '../../+internal/http';
 export const DEFAULT_CONTENT_TYPE = ContentType.APPLICATION_JSON;
 
 export const getMimeType = (body: any, path: string) => {
-  const mimeFromBuffer = Buffer.isBuffer(body) && fileType(body);
+  const mimeFromBuffer =
+    Buffer.isBuffer(body) && fileType((body as unknown) as string);
   return mimeFromBuffer
-    ? mimeFromBuffer.mime
+    ? ((mimeFromBuffer as unknown) as core.FileTypeResult).mime
     : mime.getType(path) || DEFAULT_CONTENT_TYPE;
 };
 

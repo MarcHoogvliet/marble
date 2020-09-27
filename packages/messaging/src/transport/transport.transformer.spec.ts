@@ -21,7 +21,9 @@ describe('#decodeMessage', () => {
       };
 
       // when
-      const decodedEvent = decodeMessage({ errorSubject, msgTransformer })(message);
+      const decodedEvent = decodeMessage({ errorSubject, msgTransformer })(
+        message
+      );
 
       // then
       expect(decodedEvent).toEqual({
@@ -42,7 +44,9 @@ describe('#decodeMessage', () => {
       };
 
       // when
-      const decodedEvent = decodeMessage({ errorSubject, msgTransformer })(message);
+      const decodedEvent = decodeMessage({ errorSubject, msgTransformer })(
+        message
+      );
 
       // then
       expect(decodedEvent).toEqual({
@@ -51,7 +55,7 @@ describe('#decodeMessage', () => {
       });
     });
 
-    test('decodes invalid JSON message to unknown Event and emits error to given subject', done => {
+    test('decodes invalid JSON message to unknown Event and emits error to given subject', (done) => {
       // given
       const message: TransportMessage<Buffer> = {
         data: Buffer.from('{ type }'),
@@ -61,7 +65,9 @@ describe('#decodeMessage', () => {
       };
 
       // when
-      const decodedEvent = decodeMessage({ errorSubject, msgTransformer })(message);
+      const decodedEvent = decodeMessage({ errorSubject, msgTransformer })(
+        message
+      );
 
       // then
       expect(decodedEvent).toEqual({
@@ -70,15 +76,13 @@ describe('#decodeMessage', () => {
           correlationId: message.correlationId,
           replyTo: message.replyTo,
           raw: expect.anything(),
-        })
+        }),
       } as Event);
 
-      errorSubject
-        .pipe(take(1))
-        .subscribe(error => {
-          expect(error).toBeDefined();
-          done();
-        });
+      errorSubject.pipe(take(1)).subscribe((error) => {
+        expect(error).toBeDefined();
+        done();
+      });
     });
   });
 });

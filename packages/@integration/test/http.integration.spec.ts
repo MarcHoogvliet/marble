@@ -9,7 +9,7 @@ const useTestBedSetup = createTestBedSetup({
 });
 
 describe('API integration', () => {
-  const testBedSetup = useTestBedSetup()
+  const testBedSetup = useTestBedSetup();
 
   afterEach(testBedSetup.cleanup);
 
@@ -19,7 +19,7 @@ describe('API integration', () => {
     const response = await pipe(
       request('POST'),
       request.withPath('/'),
-      request.send,
+      request.send
     );
 
     expect(response.statusCode).toEqual(404);
@@ -35,7 +35,7 @@ describe('API integration', () => {
     const response = await pipe(
       request('GET'),
       request.withPath('/api/v1'),
-      request.send,
+      request.send
     );
 
     expect(response.statusCode).toEqual(200);
@@ -48,7 +48,7 @@ describe('API integration', () => {
     const response = await pipe(
       request('GET'),
       request.withPath('/api/v2'),
-      request.send,
+      request.send
     );
 
     expect(response.statusCode).toEqual(200);
@@ -61,23 +61,26 @@ describe('API integration', () => {
     const response = await pipe(
       request('GET'),
       request.withPath('/api/v3'),
-      request.send,
+      request.send
     );
 
     expect(response.statusCode).toEqual(400);
     expect(response.body.error).toEqual({
       status: 400,
       message: 'Validation error',
-      data: [{
-        path : 'version.0',
-        expected: '"v1"',
-        got: '"v3"'
-      }, {
-        path: 'version.1',
-        expected: '"v2"',
-        got: '"v3"'
-      }],
-      context: 'params'
+      data: [
+        {
+          path: 'version.0',
+          expected: '"v1"',
+          got: '"v3"',
+        },
+        {
+          path: 'version.1',
+          expected: '"v2"',
+          got: '"v3"',
+        },
+      ],
+      context: 'params',
     });
   });
 
@@ -87,7 +90,7 @@ describe('API integration', () => {
     const response = await pipe(
       request('GET'),
       request.withPath('/api/v1/foo'),
-      request.send,
+      request.send
     );
 
     expect(response.statusCode).toEqual(404);
@@ -103,7 +106,7 @@ describe('API integration', () => {
     const response = await pipe(
       request('GET'),
       request.withPath('/api/v1/error'),
-      request.send,
+      request.send
     );
 
     expect(response.statusCode).toEqual(HttpStatus.NOT_IMPLEMENTED);
@@ -120,8 +123,8 @@ describe('API integration', () => {
     const response = await pipe(
       request('GET'),
       request.withPath('/api/v1/user'),
-      request.withHeaders({ 'Authorization': 'Bearer FAKE' }),
-      request.send,
+      request.withHeaders({ Authorization: 'Bearer FAKE' }),
+      request.send
     );
 
     expect(response.statusCode).toEqual(200);
@@ -134,8 +137,8 @@ describe('API integration', () => {
     const response = await pipe(
       request('GET'),
       request.withPath('/api/v1/user?email=test%40test.com'),
-      request.withHeaders({ 'Authorization': 'Bearer FAKE' }),
-      request.send,
+      request.withHeaders({ Authorization: 'Bearer FAKE' }),
+      request.send
     );
 
     expect(response.statusCode).toEqual(200);
@@ -148,8 +151,8 @@ describe('API integration', () => {
     const response = await pipe(
       request('GET'),
       request.withPath('/api/v1/user/10'),
-      request.withHeaders({ 'Authorization': 'Bearer FAKE' }),
-      request.send,
+      request.withHeaders({ Authorization: 'Bearer FAKE' }),
+      request.send
     );
 
     expect(response.statusCode).toEqual(200);
@@ -162,8 +165,8 @@ describe('API integration', () => {
     const response = await pipe(
       request('GET'),
       request.withPath('/api/v1/user/0'),
-      request.withHeaders({ 'Authorization': 'Bearer FAKE' }),
-      request.send,
+      request.withHeaders({ Authorization: 'Bearer FAKE' }),
+      request.send
     );
 
     expect(response.statusCode).toEqual(404);
@@ -179,7 +182,7 @@ describe('API integration', () => {
     const response = await pipe(
       request('GET'),
       request.withPath('/api/v1/user/0'),
-      request.send,
+      request.send
     );
 
     expect(response.statusCode).toEqual(401);
@@ -196,9 +199,9 @@ describe('API integration', () => {
     const response = await pipe(
       request('POST'),
       request.withPath('/api/v1/user'),
-      request.withHeaders({ 'Authorization': 'Bearer FAKE' }),
+      request.withHeaders({ Authorization: 'Bearer FAKE' }),
       request.withBody(data),
-      request.send,
+      request.send
     );
 
     expect(response.statusCode).toEqual(200);
@@ -212,10 +215,12 @@ describe('API integration', () => {
     const response = await pipe(
       request('POST'),
       request.withPath('/api/v1/user'),
-      request.withHeaders({ 'Authorization': 'Bearer FAKE' }),
-      request.withHeaders({ 'Content-Type': ContentType.APPLICATION_X_WWW_FORM_URLENCODED }),
+      request.withHeaders({ Authorization: 'Bearer FAKE' }),
+      request.withHeaders({
+        'Content-Type': ContentType.APPLICATION_X_WWW_FORM_URLENCODED,
+      }),
       request.withBody(data),
-      request.send,
+      request.send
     );
 
     expect(response.statusCode).toEqual(200);
@@ -229,7 +234,7 @@ describe('API integration', () => {
       const response = await pipe(
         request('GET'),
         request.withPath('/api/v1/static/index.html'),
-        request.send,
+        request.send
       );
 
       expect(response.statusCode).toEqual(200);
@@ -243,13 +248,13 @@ describe('API integration', () => {
       const response = await pipe(
         request('GET'),
         request.withPath('/api/v1/static/img/flow.png'),
-        request.send,
+        request.send
       );
 
       expect(response.statusCode).toEqual(200);
       expect(response.headers['content-type']).toEqual(ContentType.IMAGE_PNG);
     });
-  })
+  });
 
   describe('CORS', () => {
     test('OPTIONS "/api/v2" returns 204', async () => {
@@ -258,15 +263,23 @@ describe('API integration', () => {
       const response = await pipe(
         request('OPTIONS'),
         request.withPath('/api/v2'),
-        request.withHeaders({ 'Origin': 'fake-origin' }),
-        request.send,
+        request.withHeaders({ Origin: 'fake-origin' }),
+        request.send
       );
 
       expect(response.statusCode).toEqual(204);
-      expect(response.headers['access-control-allow-methods']).toEqual('HEAD, GET, POST, PUT, PATCH, DELETE, OPTIONS');
-      expect(response.headers['access-control-allow-origin']).toEqual('fake-origin');
-      expect(response.headers['access-control-allow-headers']).toEqual('Authorization, X-Header');
-      expect(response.headers['access-control-allow-credentials']).toEqual('true');
+      expect(response.headers['access-control-allow-methods']).toEqual(
+        'HEAD, GET, POST, PUT, PATCH, DELETE, OPTIONS'
+      );
+      expect(response.headers['access-control-allow-origin']).toEqual(
+        'fake-origin'
+      );
+      expect(response.headers['access-control-allow-headers']).toEqual(
+        'Authorization, X-Header'
+      );
+      expect(response.headers['access-control-allow-credentials']).toEqual(
+        'true'
+      );
       expect(response.headers['access-control-max-age']).toEqual('36000');
     });
 
@@ -276,12 +289,14 @@ describe('API integration', () => {
       const response = await pipe(
         request('GET'),
         request.withPath('/api/v2'),
-        request.withHeaders({ 'Origin': 'fake-origin' }),
-        request.send,
+        request.withHeaders({ Origin: 'fake-origin' }),
+        request.send
       );
 
       expect(response.statusCode).toEqual(200);
-      expect(response.headers['access-control-allow-origin']).toEqual('fake-origin');
+      expect(response.headers['access-control-allow-origin']).toEqual(
+        'fake-origin'
+      );
     });
   });
 });

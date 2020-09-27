@@ -1,6 +1,6 @@
+import { pipe } from 'fp-ts/lib/pipeable';
 import { ContentType } from '@marblejs/core/dist/+internal/http';
 import { bufferFrom, stringifyJson } from '@marblejs/core/dist/+internal/utils';
-import { pipe } from 'fp-ts/lib/pipeable';
 import { createHttpTestBed, createTestBedSetup } from '@marblejs/testing';
 import { listener } from './bodyParser.integration';
 
@@ -24,7 +24,7 @@ describe('@marblejs/middleware-body - integration', () => {
         request.withPath('/default-parser'),
         request.withHeaders({ 'Content-Type': ContentType.APPLICATION_JSON }),
         request.withBody(body),
-        request.send,
+        request.send
       );
 
       expect(response.statusCode).toEqual(200);
@@ -38,9 +38,11 @@ describe('@marblejs/middleware-body - integration', () => {
       const response = await pipe(
         request('POST'),
         request.withPath('/default-parser'),
-        request.withHeaders({ 'Content-Type': ContentType.APPLICATION_X_WWW_FORM_URLENCODED }),
+        request.withHeaders({
+          'Content-Type': ContentType.APPLICATION_X_WWW_FORM_URLENCODED,
+        }),
         request.withBody(body),
-        request.send,
+        request.send
       );
 
       expect(response.statusCode).toEqual(200);
@@ -58,7 +60,7 @@ describe('@marblejs/middleware-body - integration', () => {
         request.withPath('/multiple-parsers'),
         request.withHeaders({ 'Content-Type': ContentType.APPLICATION_JSON }),
         request.withBody(body),
-        request.send,
+        request.send
       );
 
       expect(response.statusCode).toEqual(200);
@@ -74,7 +76,7 @@ describe('@marblejs/middleware-body - integration', () => {
         request.withPath('/multiple-parsers'),
         request.withHeaders({ 'Content-Type': 'test/json' }),
         request.withBody(body),
-        request.send,
+        request.send
       );
 
       expect(response.statusCode).toEqual(200);
@@ -88,9 +90,11 @@ describe('@marblejs/middleware-body - integration', () => {
       const response = await pipe(
         request('POST'),
         request.withPath('/multiple-parsers'),
-        request.withHeaders({ 'Content-Type': ContentType.APPLICATION_VND_API_JSON }),
+        request.withHeaders({
+          'Content-Type': ContentType.APPLICATION_VND_API_JSON,
+        }),
         request.withBody(body),
-        request.send,
+        request.send
       );
 
       expect(response.statusCode).toEqual(200);
@@ -106,7 +110,7 @@ describe('@marblejs/middleware-body - integration', () => {
         request.withPath('/multiple-parsers'),
         request.withHeaders({ 'Content-Type': ContentType.TEXT_PLAIN }),
         request.withBody(body),
-        request.send,
+        request.send
       );
 
       expect(response.statusCode).toEqual(200);
@@ -120,9 +124,11 @@ describe('@marblejs/middleware-body - integration', () => {
       const response = await pipe(
         request('POST'),
         request.withPath('/multiple-parsers'),
-        request.withHeaders({ 'Content-Type': ContentType.APPLICATION_OCTET_STREAM }),
+        request.withHeaders({
+          'Content-Type': ContentType.APPLICATION_OCTET_STREAM,
+        }),
         request.withBody(body),
-        request.send,
+        request.send
       );
 
       expect(response.statusCode).toEqual(200);

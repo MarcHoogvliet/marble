@@ -1,9 +1,12 @@
 import * as fs from 'fs';
 import { ContentType } from '../../../+internal/http';
-import { DEFAULT_CONTENT_TYPE, contentTypeFactory, getMimeType } from '../http.responseContentType.factory';
+import {
+  DEFAULT_CONTENT_TYPE,
+  contentTypeFactory,
+  getMimeType,
+} from '../http.responseContentType.factory';
 
 describe('Response content-type factory', () => {
-
   it('#getMimeType detects mime-type from path', () => {
     // given
     const body = Buffer.from('test');
@@ -18,7 +21,9 @@ describe('Response content-type factory', () => {
 
   it('#getMimeType detects mime-type from buffer', () => {
     // given
-    const body = fs.readFileSync(__dirname + '/../../../../../../assets/img/logo.png');
+    const body = fs.readFileSync(
+      __dirname + '/../../../../../../assets/img/logo.png'
+    );
     const path = '/test/index.html';
 
     // when
@@ -50,5 +55,4 @@ describe('Response content-type factory', () => {
     // then
     expect(contentType).toEqual({ 'Content-Type': DEFAULT_CONTENT_TYPE });
   });
-
 });

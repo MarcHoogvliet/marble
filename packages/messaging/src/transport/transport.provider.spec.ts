@@ -1,6 +1,13 @@
 import * as E from 'fp-ts/lib/Either';
 import { pipe } from 'fp-ts/lib/pipeable';
-import { createContext, contextFactory, bindEagerlyTo, bindTo, register } from '@marblejs/core';
+import {
+  createContext,
+  contextFactory,
+  bindEagerlyTo,
+  bindTo,
+  register,
+} from '@marblejs/core';
+
 import { EventBusToken, eventBus } from '../eventbus/messaging.eventBus.reader';
 import { messagingListener } from '../server/messaging.server.listener';
 import { provideTransportLayer } from './transport.provider';
@@ -11,7 +18,9 @@ describe('#provideTransportLayer', () => {
     pipe(
       createContext(),
       provideTransportLayer(Transport.AMQP),
-      E.fold(fail, transportLayer => expect(transportLayer.type).toEqual(Transport.AMQP)),
+      E.fold(fail, (transportLayer) =>
+        expect(transportLayer.type).toEqual(Transport.AMQP)
+      )
     );
   });
 
@@ -19,15 +28,23 @@ describe('#provideTransportLayer', () => {
     pipe(
       createContext(),
       provideTransportLayer(Transport.REDIS),
-      E.fold(fail, transportLayer => expect(transportLayer.type).toEqual(Transport.REDIS)),
+      E.fold(fail, (transportLayer) =>
+        expect(transportLayer.type).toEqual(Transport.REDIS)
+      )
     );
   });
 
   test('provides LOCAL (EventBus) transport layer', async () => {
     pipe(
-      await contextFactory(bindEagerlyTo(EventBusToken)(eventBus({ listener: messagingListener() }))),
+      await contextFactory(
+        bindEagerlyTo(EventBusToken)(
+          eventBus({ listener: messagingListener() })
+        )
+      ),
       provideTransportLayer(Transport.LOCAL),
-      E.fold(fail, transportLayer => expect(transportLayer.type).toEqual(Transport.LOCAL)),
+      E.fold(fail, (transportLayer) =>
+        expect(transportLayer.type).toEqual(Transport.LOCAL)
+      )
     );
   });
 
@@ -35,16 +52,30 @@ describe('#provideTransportLayer', () => {
     pipe(
       createContext(),
       provideTransportLayer(Transport.LOCAL),
-      E.fold(error => expect(error.message).toEqual('Cannot provide EventBus transport layer if it is not registered'), fail),
+      E.fold(
+        (error) =>
+          expect(error.message).toEqual(
+            'Cannot provide EventBus transport layer if it is not registered'
+          ),
+        fail
+      )
     );
   });
 
   test('returns error if EventBus is not evaluated in the context', () => {
     pipe(
       createContext(),
-      register(bindTo(EventBusToken)(eventBus({ listener: messagingListener() }))),
+      register(
+        bindTo(EventBusToken)(eventBus({ listener: messagingListener() }))
+      ),
       provideTransportLayer(Transport.LOCAL),
-      E.fold(error => expect(error.message).toEqual('Cannot provide non-evaluated EventBus transport layer'), fail),
+      E.fold(
+        (error) =>
+          expect(error.message).toEqual(
+            'Cannot provide non-evaluated EventBus transport layer'
+          ),
+        fail
+      )
     );
   });
 
@@ -52,7 +83,13 @@ describe('#provideTransportLayer', () => {
     pipe(
       createContext(),
       provideTransportLayer(Transport.MQTT),
-      E.fold( error => expect(error.message).toEqual(`Unsupported transport type: "${Transport.MQTT}"`), fail),
+      E.fold(
+        (error) =>
+          expect(error.message).toEqual(
+            `Unsupported transport type: "${Transport.MQTT}"`
+          ),
+        fail
+      )
     );
   });
 });

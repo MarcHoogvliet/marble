@@ -1,10 +1,19 @@
-import { createUuid } from '@marblejs/core/dist/+internal/utils';
 import { Subject, fromEvent, merge } from 'rxjs';
 import { map, mapTo, take, tap, share, filter } from 'rxjs/operators';
 import { RedisClient, ClientOpts } from 'redis';
-import { TransportLayer, TransportLayerConnection, TransportMessage, Transport, DEFAULT_TIMEOUT } from '../transport.interface';
+import { createUuid } from '@marblejs/core/dist/+internal/utils';
+import {
+  TransportLayer,
+  TransportLayerConnection,
+  TransportMessage,
+  Transport,
+  DEFAULT_TIMEOUT,
+} from '../transport.interface';
 import { throwUnsupportedError } from '../transport.error';
-import { RedisStrategyOptions, RedisConnectionStatus } from './redis.strategy.interface';
+import {
+  RedisStrategyOptions,
+  RedisConnectionStatus,
+} from './redis.strategy.interface';
 import * as RedisHelper from './redis.strategy.helper';
 
 type RedisIncomingMsg = {
@@ -12,7 +21,8 @@ type RedisIncomingMsg = {
   channel: string;
 };
 
-class RedisStrategyConnection implements TransportLayerConnection<Transport.REDIS> {
+class RedisStrategyConnection
+  implements TransportLayerConnection<Transport.REDIS> {
   private statusSubject$ = new Subject<RedisConnectionStatus>();
   private producerSubject = new Subject<RedisIncomingMsg>();
   private consumerSubject = new Subject<RedisIncomingMsg>();
@@ -23,15 +33,21 @@ class RedisStrategyConnection implements TransportLayerConnection<Transport.REDI
     private opts: RedisStrategyOptions,
     private publisher: RedisClient,
     private subscriber: RedisClient,
-    private rpcSubscriber: RedisClient,
+    private rpcSubscriber: RedisClient
   ) {
     if (isConsumer) {
-      subscriber.on('message', (channel, content) => this.consumerSubject.next({ content, channel }));
+      subscriber.on('message', (channel, content) =>
+        this.consumerSubject.next({ content, channel })
+      );
     } else {
-      rpcSubscriber.on('message', (channel, content) => this.producerSubject.next({ content, channel }));
+      rpcSubscriber.on('message', (channel, content) =>
+        this.producerSubject.next({ content, channel })
+      );
     }
 
-    process.nextTick(() => this.statusSubject$.next(RedisConnectionStatus.CONNECT));
+    process.nextTick(() =>
+      this.statusSubject$.next(RedisConnectionStatus.CONNECT)
+    );
   }
 
   get type() {
@@ -47,21 +63,29 @@ class RedisStrategyConnection implements TransportLayerConnection<Transport.REDI
   }
 
   get status$() {
-    const ready$ = merge(fromEvent(this.subscriber, 'ready'))
-      .pipe(mapTo(RedisConnectionStatus.READY));
-
-    const connect$ = merge(fromEvent(this.subscriber, 'connect'))
-      .pipe(mapTo(RedisConnectionStatus.CONNECT));
-
-    const reconnecting$ = merge(fromEvent(this.subscriber, 'reconnecting'))
-      .pipe(mapTo(RedisConnectionStatus.RECONNECTING));
-
-    const end$ = merge(fromEvent(this.subscriber, 'end'))
-      .pipe(mapTo(RedisConnectionStatus.END));
-
-    return merge(ready$, connect$, reconnecting$, end$, this.statusSubject$.asObservable()).pipe(
-      share(),
+    const ready$ = merge(fromEvent(this.subscriber, 'ready')).pipe(
+      mapTo(RedisConnectionStatus.READY)
     );
+
+    const connect$ = merge(fromEvent(this.subscriber, 'connect')).pipe(
+      mapTo(RedisConnectionStatus.CONNECT)
+    );
+
+    const reconnecting$ = merge(
+      fromEvent(this.subscriber, 'reconnecting')
+    ).pipe(mapTo(RedisConnectionStatus.RECONNECTING));
+
+    const end$ = merge(fromEvent(this.subscriber, 'end')).pipe(
+      mapTo(RedisConnectionStatus.END)
+    );
+
+    return merge(
+      ready$,
+      connect$,
+      reconnecting$,
+      end$,
+      this.statusSubject$.asObservable()
+    ).pipe(share());
   }
 
   get close$() {
@@ -72,23 +96,23 @@ class RedisStrategyConnection implements TransportLayerConnection<Transport.REDI
     return merge(
       fromEvent<Error>(this.publisher, 'error'),
       fromEvent<Error>(this.subscriber, 'error'),
-      fromEvent<Error>(this.rpcSubscriber, 'error'),
-    ).pipe(
-      share(),
-    );
+      fromEvent<Error>(this.rpcSubscriber, 'error')
+    ).pipe(share());
   }
 
   get message$() {
-    return this.consumerSubject.asObservable().pipe(
-      map(msg => RedisHelper.decodeMessage(msg.content)),
-    );
+    return this.consumerSubject
+      .asObservable()
+      .pipe(map((msg) => RedisHelper.decodeMessage(msg.content)));
   }
 
   emitMessage = async (channel: string, message: TransportMessage<Buffer>) => {
     const replyChannel = message.correlationId;
-    const encodedMessage = RedisHelper.encodeMessage(replyChannel)(message.data);
+    const encodedMessage = RedisHelper.encodeMessage(replyChannel)(
+      message.data
+    );
     return RedisHelper.publishMessage(this.publisher)(channel)(encodedMessage);
-  }
+  };
 
   sendMessage = async (channel: string, message: TransportMessage<Buffer>) => {
     const correlationId = createUuid();
@@ -99,13 +123,18 @@ class RedisStrategyConnection implements TransportLayerConnection<Transport.REDI
     await RedisHelper.subscribeChannel(this.rpcSubscriber)(replyChannel);
     await this.emitMessage(channel, message);
 
-    return this.producerSubject.asObservable().pipe(
-      filter(msg => msg.channel === replyChannel),
-      take(1),
-      tap(() => RedisHelper.unsubscribeChannel(this.rpcSubscriber)(replyChannel)),
-      map(msg => RedisHelper.decodeMessage(msg.content)),
-    ).toPromise();
-  }
+    return this.producerSubject
+      .asObservable()
+      .pipe(
+        filter((msg) => msg.channel === replyChannel),
+        take(1),
+        tap(() =>
+          RedisHelper.unsubscribeChannel(this.rpcSubscriber)(replyChannel)
+        ),
+        map((msg) => RedisHelper.decodeMessage(msg.content))
+      )
+      .toPromise();
+  };
 
   close = async () => {
     this.subscriber.removeAllListeners('message');
@@ -117,7 +146,7 @@ class RedisStrategyConnection implements TransportLayerConnection<Transport.REDI
     ]);
 
     this.closeSubject$.next();
-  }
+  };
 
   ackMessage = () => throwUnsupportedError('Redis')('ackMessage');
 
@@ -134,11 +163,11 @@ class RedisStrategy implements TransportLayer<Transport.REDIS> {
   }
 
   get config() {
-    return ({
+    return {
       host: this.options.host,
       channel: this.options.channel,
       timeout: this.options.timeout ?? DEFAULT_TIMEOUT,
-    });
+    };
   }
 
   get clientOpts(): ClientOpts {
@@ -163,10 +192,11 @@ class RedisStrategy implements TransportLayer<Transport.REDIS> {
       this.options,
       publisher,
       subscriber,
-      rpcSubscriber,
+      rpcSubscriber
     );
   }
 }
 
-export const createRedisStrategy = (options: RedisStrategyOptions): TransportLayer<Transport.REDIS> =>
-  new RedisStrategy(options);
+export const createRedisStrategy = (
+  options: RedisStrategyOptions
+): TransportLayer<Transport.REDIS> => new RedisStrategy(options);
